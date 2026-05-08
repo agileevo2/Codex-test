@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hemmelig Oppdrag</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ===================== MISSION VIEW ===================== */
+    body.mission-view {
+      min-height: 100vh;
+      background: #0d0d0d;
+      color: #f0e6d3;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    body.mission-view::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(139,0,0,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 70%, rgba(100,60,0,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card {
+      position: relative;
+      max-width: 420px;
+      width: 100%;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      padding: 36px 32px 40px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #8b0000, #cc3300, #8b0000);
+    }
+    .top-label {
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #8b0000;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .divider { border: none; border-top: 1px solid #222; margin: 14px 0; }
+    .stamp {
+      font-family: 'Special Elite', monospace;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 6px;
+      text-align: center;
+      color: #8b0000;
+      text-transform: uppercase;
+      border: 3px solid #8b0000;
+      padding: 4px 14px;
+      transform: rotate(-3deg);
+      margin: 0 auto 20px;
+      display: block;
+      width: fit-content;
+      opacity: 0.85;
+    }
+    .mission-number {
+      font-family: 'Special Elite', monospace;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .participant-name {
+      font-family: 'Special Elite', monospace;
+      font-size: 22px;
+      text-align: center;
+      color: #d4a843;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+    .mission-title {
+      font-family: 'Special Elite', monospace;
+      font-size: 20px;
+      text-align: center;
+      color: #f0e6d3;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    .mission-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid #222;
+      border-left: 3px solid #8b0000;
+      border-radius: 2px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .mission-text { font-size: 16px; line-height: 1.7; color: #d0c4b0; }
+    .mission-detail {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #1e1e1e;
+      font-size: 13px;
+      color: #666;
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .accept-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #8b0000;
+      color: #f0e6d3;
+      border: none;
+      border-radius: 2px;
+      font-family: 'Special Elite', monospace;
+      font-size: 16px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .accept-btn:hover { background: #a00000; }
+    .accept-btn:active { background: #700000; }
+    .accepted-banner {
+      display: none;
+      text-align: center;
+      padding: 14px;
+      background: rgba(0,80,0,0.2);
+      border: 1px solid #1a5c1a;
+      border-radius: 2px;
+      color: #4caf50;
+      font-family: 'Special Elite', monospace;
+      font-size: 15px;
+      letter-spacing: 2px;
+    }
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 2px;
+      font-family: 'Special Elite', monospace;
+    }
+    .error-state { text-align: center; }
+    .error-state h1 { font-family: 'Special Elite', monospace; font-size: 24px; color: #8b0000; margin-bottom: 12px; }
+    .error-state p { color: #555; font-size: 14px; line-height: 1.6; }
+    @media (max-width: 440px) {
+      .card { padding: 28px 20px 32px; }
+      .stamp { font-size: 22px; letter-spacing: 4px; }
+    }
+
+    /* ===================== ADMIN VIEW ===================== */
+    body.admin-view {
+      background: #f5f0e8;
+      font-family: 'Inter', sans-serif;
+      color: #111;
+      padding: 24px;
+    }
+    body.admin-view h1 {
+      font-family: 'Special Elite', monospace;
+      font-size: 26px;
+      margin-bottom: 4px;
+      color: #1a0000;
+    }
+    .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
+    .setup-box {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+    .setup-box h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+    .url-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .url-row input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: monospace;
+    }
+    .url-row button {
+      padding: 10px 18px;
+      background: #8b0000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .url-row button:hover { background: #a00000; }
+    .print-btn {
+      padding: 10px 18px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .print-btn:hover { background: #16213e; }
+    .url-hint { font-size: 12px; color: #888; margin-top: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .qr-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .qr-card .number { font-family: 'Special Elite', monospace; font-size: 11px; letter-spacing: 3px; color: #8b0000; margin-bottom: 4px; text-transform: uppercase; }
+    .qr-card .name { font-family: 'Special Elite', monospace; font-size: 20px; margin-bottom: 4px; color: #111; }
+    .qr-card .mission-label { font-size: 12px; color: #888; margin-bottom: 14px; font-style: italic; }
+    .qr-card .qr-wrapper { display: flex; justify-content: center; margin-bottom: 14px; }
+    .qr-card .qr-wrapper canvas, .qr-card .qr-wrapper img { border: 6px solid #fff; outline: 1px solid #ddd; }
+    .qr-card .url-display { font-size: 10px; color: #bbb; word-break: break-all; font-family: monospace; }
+    .mission-preview {
+      margin-top: 12px;
+      padding: 10px;
+      background: #faf7f2;
+      border-left: 3px solid #8b0000;
+      text-align: left;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+      border-radius: 0 4px 4px 0;
+    }
+    .toggle-preview {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #888;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .legend {
+      max-width: 640px;
+      margin-bottom: 28px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 16px 20px;
+    }
+    .legend h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 10px; }
+    .legend table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .legend td { padding: 5px 8px; border-bottom: 1px solid #f0f0f0; }
+    .legend td:first-child { color: #8b0000; font-weight: 600; width: 40px; }
+    .legend td:nth-child(2) { font-family: 'Special Elite', monospace; width: 140px; }
+
+    @media print {
+      body.admin-view { background: #fff; padding: 0; }
+      .setup-box, .legend, .no-print { display: none !important; }
+      .grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .qr-card { border: 1px solid #ccc; padding: 12px; }
+      .mission-preview { display: none !important; }
+      .url-display { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  const MISSIONS = [
+    {
+      title: "Feltfotografen",
+      text: "Du er helgens hemmelige fotograf. Ta minst 5 bilder av de andre uten at de merker det – jo mer spontane, jo bedre.",
+      detail: "Avslør bildene lørdag kveld. Gruppen kårer det beste bildet. Du velger ikke selv."
+    },
+    {
+      title: "Faktadetektiven",
+      text: "Finn ut ett overraskende faktum om brudgommen som de fleste ikke vet. Grav det frem gjennom samtaler med de andre.",
+      detail: "Presenter funnet ditt høyt til hele gjengen på et passende dramatisk tidspunkt."
+    },
+    {
+      title: "Komplimentmesteren",
+      text: "Gi alle de 11 andre én spesifikk og oppriktig kompliment i løpet av helgen. Ikke generisk – noe du faktisk observerer om dem.",
+      detail: "Alle skal ha fått sin kompliment innen søndag lunsj. Sjekklistene er i hodet ditt."
+    },
+    {
+      title: "Ja-generalen",
+      text: "Lørdag kveld i to timer: svar «Ja, absolutt!» på ALT som blir sagt til deg – uansett hva det er.",
+      detail: "Oppdages du i å nekte eller nøle, drikker du. Klokken starter når du bestemmer – men du MÅ starte."
+    },
+    {
+      title: "Den Stumme",
+      text: "Kl. 20:00 lørdag inntar du «stummeperioden» – 30 minutter uten å bruke ett eneste ord.",
+      detail: "Kommuniser kun med kroppsspråk, peking og lyder. Klarer du hele perioden uten å bli avslørt, velger du én person som må gjøre noe dumt."
+    },
+    {
+      title: "Løgnjegeren",
+      text: "Fortell gruppen tre historier om deg selv: to sanne, én løgn. Prøv å overbevise dem om at løgnen er sann.",
+      detail: "Klarer ingen å gjette riktig, kan du utfordre en selvvalgt person til å gjøre noe pinlig."
+    },
+    {
+      title: "Spåmannen",
+      text: "Innen middag lørdag: skriv ned 3 spesifikke spådommer om hva som vil skje i løpet av helgen. Lever dem til et vitne.",
+      detail: "Søndag morgen leser du dem høyt for alle. Stemmer én eller flere av dem, er du udødeliggjort som helgens profet."
+    },
+    {
+      title: "Hemmelig Kelner",
+      text: "Du er helgens hemmelige servitør. Tilby alltid drikke til de andre, hent ting, fyll opp glass – hele helgen.",
+      detail: "Gjør det uten å forklare hvorfor og aldri avsløre oppdraget ditt. Oppdages du, fortsetter du likevel."
+    },
+    {
+      title: "Veddekongen",
+      text: "Inngå minst 3 veddemål med forskjellige folk om hva som vil skje i helgen. Sett noe på spill – en tur, en sang, et stunt.",
+      detail: "Veddemål skal handle om konkrete, observerbare ting. Formålet er å snakke med folk og gjøre helgen mer spennende."
+    },
+    {
+      title: "Kallenavnsgiveren",
+      text: "Gi alle de 11 andre et kallenavn basert på noe du observerer dem gjøre eller si i løpet av helgen.",
+      detail: "Fortell dem kallenavnet – men ikke hvorfor du valgte det. Bruk bare kallenavnet derfra. Avslutt helgen med en «seremoni» der du avslører alle navnene og begrunnelsene."
+    },
+    {
+      title: "Historiesamleren",
+      text: "Finn den morsomste eller mest pinlige historien noen av de andre har. Still spørsmål, grav frem gullkorn.",
+      detail: "Søndag frokost presenterer du «Historiekonkurransen»: les opp de beste historiene anonymt, og la gruppen kåre vinneren."
+    },
+    {
+      title: "Karakterskuespilleren",
+      text: "Velg en hemmelig personlighet og hold den ut HELE kvelden lørdag. F.eks: ekstremt høflig og formell, overdrevet forsiktig, eller entusiastisk over absolutt alt.",
+      detail: "Ingen får vite om oppdraget. Klarer noen å avsløre deg (si hva personligheten er), bestemmer de én ting du må gjøre."
+    }
+  ];
+
+  const PARTICIPANTS = [
+    { name: "Halvor",      mission: 1 },
+    { name: "Snorre",      mission: 2 },
+    { name: "Hans",        mission: 3 },
+    { name: "Ørjan",       mission: 4 },
+    { name: "Micheal",     mission: 5 },
+    { name: "Anders",      mission: 6 },
+    { name: "Bare",        mission: 7 },
+    { name: "Ole Martin",  mission: 8 },
+    { name: "Jens Petter", mission: 9 },
+    { name: "Per Øystein", mission: 10 },
+    { name: "Erik",        mission: 11 },
+    { name: "???",         mission: 12 }
+  ];
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const missionNum = parseInt(params.get('m'), 10);
+
+  // ── MISSION VIEW ──────────────────────────────────────────────
+  if (missionNum >= 1 && missionNum <= 12) {
+    document.body.className = 'mission-view';
+    const mission = MISSIONS[missionNum - 1];
+    const name = params.get('n') ? decodeURIComponent(params.get('n')) : null;
+
+    document.title = 'Hemmelig Oppdrag — ' + mission.title;
+
+    document.body.innerHTML = `
+      <div class="card">
+        <div class="top-label">Utdrikningslag — Fossen Friluft</div>
+        <hr class="divider">
+        <div class="stamp">Hemmelig</div>
+        <div class="mission-number">OPPDRAG ${String(missionNum).padStart(2,'0')} AV 12</div>
+        ${name ? `<div class="participant-name">${escapeHtml(name)}</div>` : ''}
+        <div class="mission-title">${escapeHtml(mission.title)}</div>
+        <div class="mission-box">
+          <div class="mission-text">${escapeHtml(mission.text)}</div>
+          <div class="mission-detail">${escapeHtml(mission.detail)}</div>
+        </div>
+        <button class="accept-btn" id="acceptBtn" onclick="
+          document.getElementById('acceptBtn').style.display='none';
+          document.getElementById('acceptedBanner').style.display='block';
+        ">Aksepter oppdrag</button>
+        <div class="accepted-banner" id="acceptedBanner">✓ Oppdrag akseptert — lykke til</div>
+        <div class="footer-note">Del ikke dette oppdraget med noen</div>
+      </div>`;
+
+  // ── ADMIN VIEW ────────────────────────────────────────────────
+  } else {
+    document.body.className = 'admin-view';
+    document.title = 'Admin — Hemmelige Oppdrag';
+
+    const defaultBase = window.location.href.replace(/[?#].*$/, '').replace(/\/[^\/]*$/, '');
+
+    document.body.innerHTML = `
+      <h1>Hemmelige Oppdrag</h1>
+      <p class="subtitle">Admin — Utdrikningslag, Fossen Friluft</p>
+
+      <div class="setup-box no-print">
+        <h2>Hosting URL</h2>
+        <div class="url-row">
+          <input type="text" id="baseUrl" value="${escapeHtml(defaultBase)}" placeholder="https://eksempel.com/mappe">
+          <button onclick="buildGrid()">Oppdater QR</button>
+          <button class="print-btn" onclick="window.print()">Print</button>
+        </div>
+        <p class="url-hint">Lim inn URL-en der denne filen ligger, og trykk «Oppdater QR» for å lage korrekte QR-koder.</p>
+      </div>
+
+      <div class="legend no-print">
+        <h2>Oversikt — hvem har hvilket oppdrag</h2>
+        <table id="legendTable"></table>
+      </div>
+
+      <div class="grid" id="grid"></div>`;
+
+    buildGrid();
+  }
+
+  function buildGrid() {
+    if (document.body.className !== 'admin-view') return;
+
+    const baseInput = document.getElementById('baseUrl');
+    const base = baseInput ? baseInput.value.trim().replace(/\/$/, '') : '';
+
+    const grid = document.getElementById('grid');
+    const legendTable = document.getElementById('legendTable');
+    grid.innerHTML = '';
+    legendTable.innerHTML = '';
+
+    PARTICIPANTS.forEach((p, idx) => {
+      const mission = MISSIONS[p.mission - 1];
+      const url = `${base}/hemmelig-oppdrag.html?m=${p.mission}&n=${encodeURIComponent(p.name)}`;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>#${p.mission}</td><td>${escapeHtml(p.name)}</td><td style="color:#555">${escapeHtml(mission.title)}</td>`;
+      legendTable.appendChild(tr);
+
+      const card = document.createElement('div');
+      card.className = 'qr-card';
+      const previewId = `preview-${idx}`;
+      card.innerHTML = `
+        <div class="number">Oppdrag ${String(p.mission).padStart(2,'0')} av 12</div>
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="mission-label">${escapeHtml(mission.title)}</div>
+        <div class="qr-wrapper" id="qr-${idx}"></div>
+        <div class="url-display">${escapeHtml(url)}</div>
+        <button class="toggle-preview no-print" onclick="
+          var el=document.getElementById('${previewId}');
+          el.style.display=el.style.display==='none'?'block':'none';
+        ">Vis oppdrag</button>
+        <div class="mission-preview" id="${previewId}" style="display:none">${escapeHtml(mission.text)}</div>`;
+      grid.appendChild(card);
+
+      new QRCode(document.getElementById(`qr-${idx}`), {
+        text: url,
+        width: 180,
+        height: 180,
+        colorDark: "#111111",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    });
+  }
+</script>
+</body>
+</html>
